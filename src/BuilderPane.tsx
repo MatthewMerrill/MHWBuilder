@@ -1,41 +1,10 @@
 import React, {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 
-import ResistancesViewer, {ResistanceStats} from './Resistances';
-
-enum ArmorItemKind {
-    head,
-    chest,
-    arms,
-    waist,
-    legs,
-}
-
-interface Skill {
-    id: number,
-    gameId: number,
-    name: string,
-    kind: string,
-}
-
-interface ArmorAppliedSkill {
-    id: number,
-    level: number,
-    name: string,
-    description: string,
-    skill: Skill,
-}
-
-interface ArmorItem {
-    id: number,
-    kind: ArmorItemKind,
-    name: string,
-    description: string,
-    rank: string,
-    rarity: number,
-    resistances: ResistanceStats,
-    skills: ArmorAppliedSkill[],
-}
+import ResistancesViewer from './Resistances';
+import { ArmorItem, ArmorItemKind, ResistanceStats } from './MHWApi';
+import ArmorSelector from './ArmorSelector';
+import { sensitiveHeaders } from 'http2';
 
 const builderPaneStyle: React.CSSProperties = {
     width: '100vw',
@@ -49,7 +18,8 @@ const builderPaneStyle: React.CSSProperties = {
 
 interface SelectedItemCardProps {
     slot: string,
-    item: ArmorItem | null
+    item: ArmorItem | null,
+    onClear: Function,
 }
 
 const selectedItemCardStyle = {
@@ -60,9 +30,13 @@ const selectedItemCardStyle = {
     padding: '.5ch',
 };
 
-function SelectedItemCard({slot, item}: SelectedItemCardProps) {
+function SelectedItemCard({slot, item, onClear}: SelectedItemCardProps) {
     return <div style={selectedItemCardStyle}>
+        <div style={{display: 'flex', flexFlow: 'row nowrap'}}>
         <span style={{fontSize: '.8rem'}}>{slot.toLocaleUpperCase()}:</span>
+        <button style={{fontSize: '.5rem', marginLeft: 'auto', display: item?'block':'none'}}
+            onClick={()=>onClear(slot)}>X</button>
+        </div>
         <div>
             {item != null ? item.name : 'None selected' }
         </div>
@@ -75,6 +49,8 @@ interface SelectedSetPaneProps {
     arms: ArmorItem | null,
     waist: ArmorItem | null,
     legs: ArmorItem | null,
+
+    onClear: Function,
 }
 
 const selectedSetPaneStyle: React.CSSProperties = {
@@ -82,7 +58,7 @@ const selectedSetPaneStyle: React.CSSProperties = {
     backgroundColor: '#ded',
 };
 
-function SelectedSetPane({head, chest, arms, waist, legs}: SelectedSetPaneProps){
+function SelectedSetPane({head, chest, arms, waist, legs, onClear}: SelectedSetPaneProps){
     
     // const () => {};
     
@@ -105,45 +81,15 @@ function SelectedSetPane({head, chest, arms, waist, legs}: SelectedSetPaneProps)
     }
 
     return <div style={selectedSetPaneStyle}>
-        <SelectedItemCard slot='head' item={head} />
-        <SelectedItemCard slot='chest' item={chest} />
-        <SelectedItemCard slot='arms' item={arms} />
-        <SelectedItemCard slot='waist' item={waist} />
-        <SelectedItemCard slot='legs' item={legs} />
+        <SelectedItemCard slot='head' item={head} onClear={onClear} />
+        <SelectedItemCard slot='chest' item={chest} onClear={onClear} />
+        <SelectedItemCard slot='arms' item={arms} onClear={onClear} />
+        <SelectedItemCard slot='waist' item={waist} onClear={onClear} />
+        <SelectedItemCard slot='legs' item={legs} onClear={onClear} />
 
         <hr></hr>
 
         <ResistancesViewer {...combinedResistances}></ResistancesViewer>
-    </div>
-}
-
-interface ArmorSelectorProps {
-    armors: ArmorItem[],
-    onClick: Function,
-}
-
-const armorCardStyle: React.CSSProperties = {
-    backgroundColor: '#aca',
-    outline: '1px solid black',
-    margin: '2ch',
-    padding: '.5ch',
-    // width: '60ch',
-
-    display: 'flex',
-    flexFlow: 'row nowrap',
-};
-
-function ArmorSelector({armors, onClick}: ArmorSelectorProps) {
-    return <div style={{backgroundColor: '#252e25', flexGrow: '1', overflow: 'scroll'}}>
-        {armors.map(
-            item => <div key={item.id} style={armorCardStyle} title={item.description} onClick={() => onClick(item)}>
-                <div style={{flexGrow: 1, borderRight: '1px double black'}}>
-                    <div style={{fontSize: '.7rem'}}>({item.kind.toString().toLocaleUpperCase()})</div>
-                    <span style={{fontWeight: 'bold'}}>{item.name}</span>
-                </div>
-                <ResistancesViewer {...item.resistances} />
-            </div>
-        )}
     </div>
 }
 
@@ -184,6 +130,19 @@ export default function BuilderPane({}: BuilderPaneProps) {
             console.log('no match: ' + item.kind);
         }
     }
+    function handleClear(slot: ArmorItemKind) {
+        if (slot.toString() == 'head') {
+            setHead(null);
+        } else if (slot.toString() == 'chest') {
+            setChest(null);
+        } else if (slot.toString() == 'arms') {
+            setArms(null);
+        } else if (slot.toString() == 'waist') {
+            setWaist(null);
+        } else if (slot.toString() == 'legs') {
+            setLegs(null);
+        }
+    }
 
     if (armorsError) {
         console.error('Error loading armors!', armorsError);
@@ -197,6 +156,7 @@ export default function BuilderPane({}: BuilderPaneProps) {
             arms={arms}
             waist={waist}
             legs={legs}
+            onClear={handleClear}
         ></SelectedSetPane>
         {armorItems && <ArmorSelector armors={armorItems} onClick={handleSelect} />}
     </div>
