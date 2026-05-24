@@ -1,13 +1,6 @@
 import React from 'react';
 
-
-export interface ResistanceStats {
-    fire: number,
-    water: number,
-    ice: number,
-    thunder: number,
-    dragon: number,
-}
+import { ResistanceStats } from '../lib/MHWApi';
 
 const ResistanceBlock = ({kind, value}: {kind: String, value: number}) => <>
     <div style={{ display: 'flex', flexFlow: 'column nowrap', width: '6ch', alignItems: 'center'}}>

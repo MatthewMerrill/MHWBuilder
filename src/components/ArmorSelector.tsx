@@ -1,8 +1,6 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { ArmorItem, ArmorItemKind, Skill } from "./MHWApi";
-import ResistancesViewer from "./Resistances";
-import { match } from "assert";
-import { skipPartiallyEmittedExpressions } from "typescript";
+import { ArmorItem, Skill } from "../lib/MHWApi";
+import ArmorCard from "./ArmorCard";
 
 
 const armorFilterStyle: React.CSSProperties = {
@@ -115,30 +113,6 @@ function ArmorFilter({armors, onChange}: ArmorFilterProps) {
                 </select>
             </label>
         </div>
-    </div>
-}
-
-interface ArmorCardProps {
-    item: ArmorItem,
-    onClick: Function,
-}
-const armorCardStyle: React.CSSProperties = {
-    backgroundColor: '#aca',
-    outline: '1px solid black',
-    margin: '2ch',
-    padding: '.5ch',
-    // width: '60ch',
-
-    display: 'flex',
-    flexFlow: 'row nowrap',
-};
-function ArmorCard({item, onClick}: ArmorCardProps) {
-    return <div key={item.id} style={armorCardStyle} title={item.description} onClick={() => onClick(item)}>
-        <div style={{flexGrow: 1, borderRight: '1px double black'}}>
-            <div style={{fontSize: '.7rem'}}>({item.kind.toString().toLocaleUpperCase()})</div>
-            <span style={{fontWeight: 'bold'}}>{item.name}</span>
-        </div>
-        <ResistancesViewer {...item.resistances} />
     </div>
 }
 

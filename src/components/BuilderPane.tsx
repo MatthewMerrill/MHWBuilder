@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 
 import ResistancesViewer from './Resistances';
-import { ArmorItem, ArmorItemKind, ResistanceStats } from './MHWApi';
+import { ArmorItem, ArmorItemKind, ResistanceStats } from '../lib/MHWApi';
 import ArmorSelector from './ArmorSelector';
 import { sensitiveHeaders } from 'http2';
 

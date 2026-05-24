@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from './logo.svg';
-import BuilderPane from './BuilderPane';
+import BuilderPane from './components/BuilderPane';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // import './App.css';
 
