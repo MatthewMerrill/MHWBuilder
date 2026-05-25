@@ -11,7 +11,7 @@ interface SelectedItemCardProps {
 
 const selectedItemCardStyle = {
     outline: '1px solid black',
-    margin: '1ch',
+    margin: '0 1ch',
     backgroundColor: '#f8fff8',
     padding: '.5ch',
 };
@@ -76,7 +76,6 @@ export default function SelectedSetPane({head, chest, arms, waist, legs, onClear
     function skillSetFrag(skillEffects: SkillEffect[], effectKind: string) {
         return skillEffects.length > 0
         ? <div>
-            <hr></hr>
             <span style={{fontSize:"1.2rem", fontWeight:'bold'}}>Skills ({effectKind}):</span>
             {skillEffects.map(skillEffect => <SkillDetails key={skillEffect.skillRank.id} {...skillEffect}/>)}
             </div>
@@ -93,10 +92,13 @@ export default function SelectedSetPane({head, chest, arms, waist, legs, onClear
         <div>
             <hr></hr>
             <ResistancesViewer {...combinedResistances}></ResistancesViewer>
+            <hr></hr>
         </div>
-        {armorFx.armorSkills.length > 0 && skillSetFrag(armorFx.armorSkills, 'Armor')}
-        {armorFx.setSkills.length > 0 && skillSetFrag(armorFx.setSkills, 'Set')}
-        {armorFx.groupSkills.length > 0 && skillSetFrag(armorFx.groupSkills, 'Group')}
+        <div style={{overflow: 'scroll', outline: '2px inset #676', padding: '.5ch'}}>
+            {armorFx.armorSkills.length > 0 && skillSetFrag(armorFx.armorSkills, 'Armor')}
+            {armorFx.setSkills.length > 0 && skillSetFrag(armorFx.setSkills, 'Set')}
+            {armorFx.groupSkills.length > 0 && skillSetFrag(armorFx.groupSkills, 'Group')}
+        </div>
 
         <div style={{marginTop: 'auto'}}>
             <hr></hr>
