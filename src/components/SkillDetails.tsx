@@ -1,16 +1,18 @@
 import { useMHWSkill } from "../hooks/usemhw";
-import { SkillRank } from "../lib/MHWApi";
+import { ArmorItem, SkillRank } from "../lib/MHWApi";
 
 interface SkillDetailsProps {
     skillRank: SkillRank,
+    applying?: ArmorItem[],
+    required?: number,
 }
-export default function SkillDetails({skillRank}: SkillDetailsProps) {
+export default function SkillDetails({skillRank, applying=undefined, required=undefined}: SkillDetailsProps) {
     const {data: skill, isPending, error} = useMHWSkill(skillRank.skill.id);
 
     const skillRankDesc = (rankOfSkill: SkillRank) => {
         let ret = <li key={rankOfSkill.id}>{rankOfSkill.level}: {rankOfSkill.description}</li>;
-        return (rankOfSkill.id == skillRank.id)
-            ? <strong>{ret}</strong>
+        return (rankOfSkill.id === skillRank.id)
+            ? <strong key={rankOfSkill.id}>{ret}</strong>
             : ret;
     }
 
@@ -29,8 +31,17 @@ export default function SkillDetails({skillRank}: SkillDetailsProps) {
         </div>
     };
 
+    const fromArmors = applying !== undefined
+        ? <ul style={{margin:0}}>{applying.map(item => <li key={item.id}>{item.name}</li>)}</ul>
+        : <></>;
+    let ofRequired = '';
+    if (required) ofRequired = ` (${applying?.length ?? ''}/${required})`;
+    // else if (required) ofRequired = ' needs ' + required;
+
     return <details>
-        <summary>{skillRank.skill.name} (Lv {skillRank.level})</summary>
+        <summary>{skillRank.skill.name} Lv{skillRank.level}{ofRequired ? ofRequired : ''}
+            {fromArmors}
+        </summary>
         {blurb()}
     </details>
 }

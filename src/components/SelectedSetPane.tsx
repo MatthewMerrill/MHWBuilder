@@ -1,6 +1,5 @@
-import { useMHWArmorSetsById } from "../hooks/usemhw";
-import computeSkills from "../lib/computeskills";
-import { ArmorItem, ArmorSet, ResistanceStats, Skill } from "../lib/MHWApi";
+import computeSkills, { SkillEffect } from "../lib/computeskills";
+import { ArmorItem, ResistanceStats } from "../lib/MHWApi";
 import ResistancesViewer from "./Resistances";
 import SkillDetails from "./SkillDetails";
 
@@ -11,7 +10,6 @@ interface SelectedItemCardProps {
 }
 
 const selectedItemCardStyle = {
-    // width: '20ch',
     outline: '1px solid black',
     margin: '1ch',
     backgroundColor: '#f8fff8',
@@ -50,8 +48,6 @@ const selectedSetPaneStyle: React.CSSProperties = {
     backgroundColor: '#ded',
 
     minWidth: '40ch',
-    // flexGrow: 1,
-    // flexShrink: 0,
 };
 
 export default function SelectedSetPane({head, chest, arms, waist, legs, onClear}: SelectedSetPaneProps){
@@ -77,19 +73,15 @@ export default function SelectedSetPane({head, chest, arms, waist, legs, onClear
     const armorItems: ArmorItem[] = [head, chest, arms, waist, legs].filter((i): i is ArmorItem => i !== null);
     const armorFx = computeSkills(armorItems);
     
-    const armorSkillsFrag = armorFx.armorSkills.length > 0
+    function skillSetFrag(skillEffects: SkillEffect[], effectKind: string) {
+        return skillEffects.length > 0
         ? <div>
             <hr></hr>
-            <span style={{fontSize:"1.2rem", fontWeight:'bold'}}>Skills (Armor):</span>
-            {/* <ul>
-                {armorFx.armorSkills.map((skillRank, index) => <li key={index}>
-                    {skillRank.skill.name} (Level: {skillRank.level})
-                    <ul><li>{skillRank.description}</li></ul>
-                </li>)}
-            </ul> */}
-            {armorFx.armorSkills.map(skillRank => <SkillDetails key={skillRank.id} skillRank={skillRank}/>)}
+            <span style={{fontSize:"1.2rem", fontWeight:'bold'}}>Skills ({effectKind}):</span>
+            {skillEffects.map(skillEffect => <SkillDetails key={skillEffect.skillRank.id} {...skillEffect}/>)}
             </div>
         : <></>;
+    }
 
     return <div style={selectedSetPaneStyle}>
         <SelectedItemCard slot='head' item={head} onClear={onClear} />
@@ -102,15 +94,11 @@ export default function SelectedSetPane({head, chest, arms, waist, legs, onClear
             <hr></hr>
             <ResistancesViewer {...combinedResistances}></ResistancesViewer>
         </div>
-        {armorSkillsFrag}
+        {armorFx.armorSkills.length > 0 && skillSetFrag(armorFx.armorSkills, 'Armor')}
+        {armorFx.setSkills.length > 0 && skillSetFrag(armorFx.setSkills, 'Set')}
+        {armorFx.groupSkills.length > 0 && skillSetFrag(armorFx.groupSkills, 'Group')}
 
         <div style={{marginTop: 'auto'}}>
-            <hr></hr>
-            <strong>NOTE:</strong>
-            <p>Listed skills are limited to 'armor'-kind skills.</p>
-            <p>Support for 'set' and 'group' skills coming soon.</p>
-        </div>
-        <div>
             <hr></hr>
             <p>Thank you <a href="https://docs.wilds.mhdb.io/#introduction">MHDB.io</a> for API support.</p>
             <p>MattMerr 2026 <a href="https://github.com/MatthewMerrill/MHWBuilder">GitHub</a></p>

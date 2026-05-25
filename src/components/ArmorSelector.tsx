@@ -1,8 +1,6 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { ArmorItem, ArmorItemKind, Skill } from "../lib/MHWApi";
-import ResistancesViewer from "./Resistances";
-import { match } from "assert";
-import { skipPartiallyEmittedExpressions } from "typescript";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { useMHWSkills } from "../hooks/usemhw";
+import { ArmorItem } from "../lib/MHWApi";
 import ArmorCard from "./ArmorCard";
 
 
@@ -43,18 +41,7 @@ interface ArmorFilterProps {
 }
 function ArmorFilter({armors, onChange}: ArmorFilterProps) {
     const [filters, setFilters] = useState({...EMPTY_FILTERS});
-    const skills = useMemo<Skill[]>(() => {
-        let skills = new Map<number, Skill>();
-        for (let item of armors) {
-            for (let skill of item.skills) {
-                skills.set(skill.skill.id, skill.skill);
-            }
-        }
-        let skillsArr = Array.from(skills.values());
-        skillsArr.sort(
-            (a: Skill, b: Skill) => a.name.localeCompare(b.name));
-        return skillsArr;
-    }, [armors]);
+    const {data: skills} = useMHWSkills();
 
     useEffect(() => {
         const matchedIds = new Set<number>();
@@ -66,14 +53,14 @@ function ArmorFilter({armors, onChange}: ArmorFilterProps) {
             if (item.kind.toString().indexOf(filters.kind) < 0) {
                 continue;
             }
-            if (filters.skill !== '' && !item.skills.find(skill => skill.skill.id.toString() == filters.skill)) {
+            if (filters.skill !== '' && !item.skills.find(skill => skill.skill.id.toString() === filters.skill)) {
                 continue;
             }
             matchedIds.add(item.id);
         }
 
         onChange(matchedIds);
-    }, [armors, filters]);
+    }, [armors, filters, onChange]);
 
     function handleChange(e: ChangeEvent<HTMLInputElement|HTMLSelectElement>) {
         setFilters({...filters, [e.currentTarget.name]: e.currentTarget.value});
@@ -105,7 +92,7 @@ function ArmorFilter({armors, onChange}: ArmorFilterProps) {
                         value={filters.skill}
                         onChange={handleChange}>
                     <option value="">---</option>
-                    {skills.map(skill =>
+                    {skills && skills.filter(s => s.kind !== 'weapon').sort((a, b) => a.name.localeCompare(b.name)).map(skill =>
                         <option
                             key={skill.id}
                             value={skill.id}>{skill.name} ({skill.id})</option>
@@ -131,9 +118,9 @@ const armorSelectorStyle: React.CSSProperties = {
 export default function ArmorSelector({armors, onClick}: ArmorSelectorProps) {
     const [matchedArmors, setMatched] = useState<ArmorItem[]>([]);
 
-    function handleMatch(matchedArmors: Set<number>) {
+    const handleMatch = useCallback((matchedArmors: Set<number>) => {
         setMatched(armors.filter(item => matchedArmors.has(item.id)));
-    }
+    }, [armors])
     
     return <div style={armorSelectorStyle}>
         <div style={{backgroundColor: '#222', borderBottom: '2px solid #555', padding: '2ch'}}>
