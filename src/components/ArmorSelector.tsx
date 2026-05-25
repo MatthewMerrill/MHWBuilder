@@ -1,5 +1,8 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { ArmorItem, Skill } from "../lib/MHWApi";
+import { ArmorItem, ArmorItemKind, Skill } from "../lib/MHWApi";
+import ResistancesViewer from "./Resistances";
+import { match } from "assert";
+import { skipPartiallyEmittedExpressions } from "typescript";
 import ArmorCard from "./ArmorCard";
 
 
@@ -50,7 +53,6 @@ function ArmorFilter({armors, onChange}: ArmorFilterProps) {
         let skillsArr = Array.from(skills.values());
         skillsArr.sort(
             (a: Skill, b: Skill) => a.name.localeCompare(b.name));
-        console.log(skillsArr);
         return skillsArr;
     }, [armors]);
 
@@ -69,8 +71,6 @@ function ArmorFilter({armors, onChange}: ArmorFilterProps) {
             }
             matchedIds.add(item.id);
         }
-
-        console.log(matchedIds)
 
         onChange(matchedIds);
     }, [armors, filters]);
@@ -139,7 +139,7 @@ export default function ArmorSelector({armors, onClick}: ArmorSelectorProps) {
         <div style={{backgroundColor: '#222', borderBottom: '2px solid #555', padding: '2ch'}}>
             <ArmorFilter armors={armors} onChange={handleMatch} />
         </div>
-        <div>
+        <div style={{display: 'flex', flexFlow: 'row wrap'}}>
             {matchedArmors.map(item =>
                 <ArmorCard key={item.id} item={item} onClick={onClick} />
             )}

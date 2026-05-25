@@ -18,15 +18,26 @@ export interface Skill {
     id: number,
     gameId: number,
     name: string,
+    description: string,
     kind: string,
+    ranks: SkillRank[],
 }
 
-export interface ArmorAppliedSkill {
+export interface SkillRank {
     id: number,
     level: number,
     name: string,
     description: string,
     skill: Skill,
+    setPiecesRequired: number,
+}
+
+export interface ArmorSet {
+    id: number,
+    name: string,
+    pieces: ArmorItem[],
+    setBonusSkill: Skill,
+    groupBonusSkill: Skill,
 }
 
 export interface ArmorItem {
@@ -37,5 +48,6 @@ export interface ArmorItem {
     rank: string,
     rarity: number,
     resistances: ResistanceStats,
-    skills: ArmorAppliedSkill[],
+    skills: SkillRank[],
+    armorSet: ArmorSet,
 }

@@ -10,7 +10,7 @@ const ResistanceBlock = ({kind, value}: {kind: String, value: number}) => <>
 </>
 
 export default function ResistancesViewer({fire, water, ice, thunder, dragon}: ResistanceStats) {
-    return <div style={{display: 'flex', flexFlow: 'row nowrap', flexGrow: 0}}>
+    return <div style={{display: 'flex', flexFlow: 'row nowrap', flexGrow: 0, justifyContent: 'center'}}>
         <ResistanceBlock kind="F" value={fire} />
         <ResistanceBlock kind="W" value={water} />
         <ResistanceBlock kind="I" value={ice} />
